@@ -1,4 +1,4 @@
-const connectDatabase = require('../functions/functions.js');
+const connectDatabase = require('../functions/connectDatabase.js');
 
 const express = require("express");
 const dotenv = require('dotenv');
@@ -6,22 +6,15 @@ const router = express.Router();
 const cloudinary = require('cloudinary');
 dotenv.config({path:'../.env'});
 
-router.get('/api/userinformation/:user_id',(req,res,next)=>{
+router.get('/api/user',(req,res,next)=>{
     var db = connectDatabase();
     let sql =    
     `SELECT 
-        FIRST_NAME as firstName,
-        LAST_NAME as lastName,
-        CITY as city,
-        STATE as state,
-        PROFILEPICTURELINK as profilePictureLink,
-        SIGNEDUP as signedUp 
+        *
     FROM 
-        USER 
+        USERS
     WHERE 
-        USER_ID='${req.params.user_id}'`;
-
-    
+        USER_ID='454121'`;
 
     db.query(sql,(err,result)=>{
         if(err) throw res.status(400).send('err');
@@ -33,21 +26,21 @@ router.get('/api/userinformation/:user_id',(req,res,next)=>{
 });
 
 
-router.post('/api/signup',async (req,res) => {
+router.post('/api/user/signup',async (req,res) => {
     var db  = create_connection();
     var data = req.body;
     console.log(data)
 
     if(!data.imageUploaded) {
         console.log("use default")
-        data['profilePictureLink'] = 'https://res.cloudinary.com/ledgiswap/image/upload/v1641720849/mwx9hcko2wqdb37f4vnp.svg';
+        data['profilePictureLink'] = 'https://res.cloudinary.com/dppkrg7h5/image/upload/v1679691231/not-sw/Screenshot_2023-03-24_135342_fdr6cp.png';
         delete data.imageUploaded;
     } else {
         cloudinary.config({
             cloud_name: process.env.cloudinaryCloudName,
             api_key: process.env.cloudinaryAPIKEY,
             api_secret: process.env.cloudinarySecret,
-            folder: 'ledgiswap'
+            folder: 'not-sw'
           });
         
         const uploadResponse = await cloudinary.uploader.upload(
@@ -62,24 +55,13 @@ router.post('/api/signup',async (req,res) => {
         delete data.imageUploaded;
     }
 
-    data['user_id'] = (uuidv4());
-    data['signedup'] = new Date().toISOString().slice(0, 19).replace('T', ' ');
-    
-    var preferences = {
-        user_id: data.user_id,
-        doge:false, 
-        btc:false, 
-        lite:false
-    }
+    data['USER_ID'] = (uuidv4());
+    data['SUBSCRIPTION_ID '] = (uuidv4());
+    data['DATE_JOINED'] = new Date().toISOString().slice(0, 19).replace('T', ' ');
     
     let sql = 'INSERT INTO user SET ?';
-    let preferencesSql = 'INSERT INTO PREFERENCES SET ?'
 
     db.query(sql, data, (err, result) => {
-        if(err) throw err;
-    });
-
-    db.query(preferencesSql, preferences, (err, result) => {
         if(err) throw err;
     });
 
@@ -90,7 +72,7 @@ router.post('/api/signup',async (req,res) => {
     res.send('Sign-up Successful!')
 })
 
-router.post('/api/login', (req, res)=> {
+router.post('/api/user/login', (req, res)=> {
     var db = create_connection();
     var user_email = req.body.email;
     var user_attempted_password = req.body.password;

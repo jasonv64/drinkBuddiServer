@@ -11,7 +11,7 @@ var debug = require('debug')('api:server');
 //import endpoints
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/user');
-var vendersRouter = require('./routes/venders');
+var vendorsRouter = require('./routes/vendors');
 var subscriptionsRouter = require("./routes/subscriptions");
 
 var port = normalizePort(process.env.PORT || '8000');
@@ -33,7 +33,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/user', usersRouter);
-app.use('/venders', vendersRouter);
+app.use('/vendors', vendorsRouter);
 app.use("/subscriptions", subscriptionsRouter);
 
 // catch 404 and forward to error handler
@@ -52,8 +52,6 @@ app.use(function(err, req, res, next) {
     res.render('error');
 });
   
-
-
 /*
  * Normalize a port into a number, string, or false.
  */
